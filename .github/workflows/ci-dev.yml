@@ -25,6 +25,10 @@ jobs:
           java-version: 17
           distribution: 'corretto'
 
+      # Step 3: Give execute permissions to mvnw
+      - name: Make mvnw executable
+        run: chmod +x ./mvnw
+
       # Step 3: Build and Test Each Service
       - name: Build and Test ${{ matrix.service }}
         working-directory: services/${{ matrix.service }}
