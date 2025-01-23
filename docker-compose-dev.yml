@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # Microservices
+
+  user-service:
+    image: user-service:dev
+    build: ./services/user-service .
+    ports:
+      - "8081:8081"  # Consistent port mapping
+    networks:
+      - microservices-net
+    environment:
+      - DB_URL=jdbc:postgresql://db:5432/users
+      - SPRING_PROFILES_ACTIVE=dev
+  
+  config-server:
+    build: ./services/config-server .
+    ports:
+      - "8888:8888"  # Adjust port mapping as needed
+    networks:
+      - microservices-net
+
+  price-data-service:
+    image: price-data-service:dev
+    build:
+      context: .services/price-data-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  # SQL Database
+  postgres:
+    container_name: ms_pg_sql
+    image: postgres:12
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password  # Consider using secrets management for production
+      POSTGRES_DB: user-db
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - postgres:/var/lib/postgresql/data  # Consider a persistent volume for data persistence
+    ports:
+      - 5432:5432  # Adjust port mapping as needed
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: ms_pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}  # Consider using secrets management for production
+      PGAMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - 5050:80  # Adjust port mapping as needed for development
+    networks:
+      - microservices-net
+    restart: unless-stopped
+
+  # NoSQL Database
+  mongodb:
+    container_name: ms_mongo_db
+    image: mongo
+    volumes:
+      - mongo-dev:/data  # Use a separate volume for development to avoid overwriting data
+    ports:
+      - 27017:27017  # Adjust port mapping as needed
+    networks:
+      - microservices-net
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root  # Consider using secrets management for production
+    restart: unless-stopped
+
+  mongo-express:
+    container_name: ms_mongo_express
+    image: mongo-express
+    ports:
+      - 8084:8081  # Adjust port mapping as needed
+    networks:
+      - microservices-net
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root  # Consider using secrets management for production
+    restart: unless-stopped
+
+# Networks
+networks:
+  microservices-net:
+
+volumes:
+  postgres:  # Consider a persistent volume for data persistence
+  pgadmin:
+  mongo-dev:  # Separate volume for development data

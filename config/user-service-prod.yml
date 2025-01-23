@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url:
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  cloud:
+    gcp:
+      sql:
+        instance-connection-name: crypto-price-tracker-447719:europe-west3:postgress96
+        database-name: cpt-users
+  jpa:
+    hibernate:
+      ddl-auto: none
+  sql:
+    init: 
+      mode: always
+logging:
+  level:
+    root: info
+    org.springframework: warn
