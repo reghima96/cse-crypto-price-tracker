@@ -1,0 +1,53 @@
+name: CI/CD for Main Branch
+
+on:
+  push:
+    branches:
+      -main
+      -development
+    paths:
+      - "k8s/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCR_REGION: "europe-west3"  # Define as a variable
+  GCR_REPOSITORY: "cpt-mservices-repo" # Define as a variable
+  CLUSTER_NAME: "crt-cluster" # Define as a variable
+  CLUSTER_LOCATION: "europe-west3" # Define as a variable
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth:  0
+
+      - name: Google Cloud Auth
+        id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GCP_AUTH_GITHUB_ACTIONS}}"
+
+      - name: set up Cloud sdk
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }} # Use the project ID variable
+
+      - name: Configure GKE Credentials
+        id: "get-credentials"
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.CLUSTER_NAME }}  # Use cluster name variable
+          location: ${{ env.CLUSTER_LOCATION }} # Use cluster location variable
+
+      - name: Deploy to GKE
+        run: |
+          kubectl apply -f k8s/
+          kubectl rollout status deployment/${{ matrix.service }}
+
