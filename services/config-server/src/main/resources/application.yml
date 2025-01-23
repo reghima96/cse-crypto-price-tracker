@@ -8,5 +8,7 @@ spring:
           uri: https://github.com/reghima96/cse-crypto-price-tracker.git
           search-paths:
             - config
+  profiles:
+    active: native
 server:
   port: 8888

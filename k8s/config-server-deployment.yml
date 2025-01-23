@@ -22,10 +22,6 @@ spec:
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: prod
-        - name: GIT_USERNAME
-          value: "${GIT_USERNAME}"
-        - name: GIT_PASSWORD
-          value: "${GIT_PASSWORD}"
         resources:
           limits: 
             memory: "512Mi"
