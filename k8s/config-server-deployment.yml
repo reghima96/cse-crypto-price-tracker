@@ -19,9 +19,6 @@ spec:
         image: europe-west3-docker.pkg.dev/crypto-price-tracker-447719/cpt-mservices-repo/config-server:latest
         ports:
         - containerPort: 8888
-        env:
-        - name: SPRING_PROFILES_ACTIVE
-          value: prod
         resources:
           limits: 
             memory: "512Mi"
