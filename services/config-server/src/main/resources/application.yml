@@ -6,7 +6,7 @@ spring:
       server:
         git:
           uri: https://github.com/reghima96/cse-crypto-price-tracker.git
-          search-paths: 
+          search-paths:
             - config
   profiles:
     active: native
