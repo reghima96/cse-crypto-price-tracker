@@ -9,6 +9,7 @@ spring:
           search-paths:
             - config
   profiles:
-    active: native
+    active: git
 server:
-  port: 8888
+  port:
+    8888

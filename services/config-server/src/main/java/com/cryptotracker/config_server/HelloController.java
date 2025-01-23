@@ -13,7 +13,7 @@ public class HelloController {
     @RequestMapping("/")
     public String index() {
         String environment = System.getenv("ENVIRONMENT");
-        String response = "<html><head><title>SimpleApp</title></head><body><h1>HELLO FROM CONFIG SERVICE </h1>";
+        String response = "<html><head><title>SimpleApp</title></head><body><h1>HELLO FROM CONFIG SERVICE  zeezaeaze</h1>";
         if (StringUtils.hasText(environment)) {
             response += "\n\n<h2>Environment: " + environment + "</h2>";
         }
