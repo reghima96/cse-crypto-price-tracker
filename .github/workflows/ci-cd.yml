@@ -1,0 +1,109 @@
+name: CI/CD for Main Branch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "services/**"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCR_REGION: "europe-west3"  # Define as a variable
+  GCR_REPOSITORY: "cpt-mservices-repo" # Define as a variable
+  CLUSTER_NAME: "crt-cluster" # Define as a variable
+  CLUSTER_LOCATION: "europe-west3" # Define as a variable
+
+
+jobs:
+  detect-changes:
+    name: run_on_pr_or_push
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.changed-files.outputs.services }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if ${{ github.event_name == 'pull_request' }}; then
+              echo "services=$(git diff --name-only -r HEAD^1 HEAD | grep -oE '^services/[^/]+/' | cut -d'/' -f2 | uniq  | jq -R -s -c 'split("\n") | map(select(. != ""))')" >> $GITHUB_OUTPUT
+          else
+              echo "services=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep -oE '^services/[^/]+/' | cut -d'/' -f2 | uniq | jq -R -s -c 'split("\n") | map(select(. != ""))')" >> $GITHUB_OUTPUT
+          fi
+      - name: Debug Changed Services
+        run: echo "Changed services ${{ steps.changed-files.outputs.services }}"
+
+  build-and-push:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.services) }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ github.event_name == 'pull_request' && 2 || 0 }}
+
+      - name: Generate Docker Tag
+        id: generate_tag
+        run: |
+          timestamp=$(date -u +"%Y-%m-%d_%H-%M")
+          tag="${{ matrix.service }}-build-${timestamp}"
+          echo "docker_tag=$tag" >> $GITHUB_OUTPUT # Output to GITHUB_OUTPUT for other steps to access directly
+
+      - name: Google Cloud Auth
+        id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GCP_AUTH_GITHUB_ACTIONS}}"
+
+      - name: set up Cloud sdk
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }} # Use the project ID variable
+
+      - name: Docker auth
+        run: gcloud auth configure-docker ${{ env.GCR_REGION }}-docker.pkg.dev --quiet # Use region variable
+
+
+      - name: Build Docker Image
+        working-directory: services/${{ matrix.service }}
+        run: |
+          docker build -t ${{ env.GCR_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GCR_REPOSITORY }}/${{ matrix.service }}:${{ steps.generate_tag.outputs.docker_tag }} .  # Construct image name with variables and GITHUB_OUTPUT
+          docker tag ${{ env.GCR_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GCR_REPOSITORY }}/${{ matrix.service }}:${{ steps.generate_tag.outputs.docker_tag }} ${{ env.GCR_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GCR_REPOSITORY }}/${{ matrix.service }}:latest
+
+      - name: Push Docker Image
+        run: |
+          docker push ${{ env.GCR_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GCR_REPOSITORY }}/${{ matrix.service }}:${{ steps.generate_tag.outputs.docker_tag }}
+          docker push ${{ env.GCR_REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.GCR_REPOSITORY }}/${{ matrix.service }}:latest
+
+
+      - name: Configure GKE Credentials
+        id: "get-credentials"
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.CLUSTER_NAME }}  # Use cluster name variable
+          location: ${{ env.CLUSTER_LOCATION }} # Use cluster location variable
+
+      - name: Deploy to GKE
+        run: |
+          kubectl apply -f k8s/
+          kubectl rollout status deployment/${{ matrix.service }}
+
+      - name: Tag and Push Git Tag # Consider if you really need to tag every build.
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git tag ${{ steps.generate_tag.outputs.docker_tag }} # Access docker_tag from GITHUB_OUTPUT
+          git push origin ${{ steps.generate_tag.outputs.docker_tag }}
+
+
+
