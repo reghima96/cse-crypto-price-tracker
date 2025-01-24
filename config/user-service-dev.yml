@@ -1,16 +1,21 @@
 spring:
+  application:
+    name: user-service
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/user_db
-    username: dev_user
-    password: dev_password
+    url: jdbc:postgresql://localhost:5433/postgres
+    username: postgres
+    password: dev_user
     driver-class-name: org.postgresql.Driver
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
   jpa:
     hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
+      ddl-auto: create-drop 
 logging:
   level:
     root: debug
-    org.springframework: info
+    org:
+      springframework: info

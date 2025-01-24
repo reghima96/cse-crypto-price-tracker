@@ -7,7 +7,7 @@ spring:
   cloud:
     gcp:
       sql:
-        instance-connection-name: ${GCP_PROJECT_ID}
+        instance-connection-name: ${INSTANCE_CONNECTION_NAME}
         database-name: ${USERS_DB_NAME}
   jpa:
     hibernate:
@@ -19,3 +19,4 @@ logging:
   level:
     root: info
     org.springframework: warn
+ENVIRONMENT: testvariable
