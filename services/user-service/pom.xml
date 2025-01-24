@@ -32,7 +32,6 @@
 	</properties>
 
 
-
 <dependencies>
 
 		<dependency>
@@ -90,6 +89,12 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>annotationProcessor</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -114,4 +119,5 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
 </project>
