@@ -1,8 +1,10 @@
 package com.cryptotracker.user_service.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
-    Optional<UserEntity> findByEmail(String email);
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<UserEntity, UUID> {
+	Optional<UserEntity> findByEmail(String email);
 }

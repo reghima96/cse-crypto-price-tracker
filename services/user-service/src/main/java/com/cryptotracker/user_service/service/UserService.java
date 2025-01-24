@@ -1,25 +1,29 @@
 package com.cryptotracker.user_service.service;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.cryptotracker.user_service.repository.UserRepository;
 import com.cryptotracker.user_service.repository.UserEntity;
+import com.cryptotracker.user_service.repository.UserRepository;
 
-import java.util.List;
-import java.util.Optional;
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserEntity registerUser(String name, String email, String rawPassword, List<String> roles) {
+    @Transactional
+    public UserEntity registerUser(String name, String email, String rawPassword, Set<String> roles) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("Email already exists");
         }
@@ -31,7 +35,16 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Optional<UserEntity> findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<UserEntity> findById(UUID id) {
+        return this.userRepository.findById(id);
     }
+
+    public Optional<UserEntity> findByEmail(String email) {
+        return this.userRepository.findByEmail(email);
+    }
+
+    public UserEntity save(UserEntity userEntity) {
+        return this.userRepository.save(userEntity);
+    }
+
 }

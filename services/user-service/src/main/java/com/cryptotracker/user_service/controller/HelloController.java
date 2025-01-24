@@ -1,16 +1,14 @@
 
 package com.cryptotracker.user_service.controller;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class HelloController {
-    
 
     @RequestMapping("/")
     public String index() {
@@ -22,11 +20,10 @@ public class HelloController {
         response += "</body></html>";
         return response;
     }
+
     @RequestMapping("/healthz")
     @ResponseStatus(HttpStatus.OK)
     public String health() {
         return "";
     }
-
-
 }
