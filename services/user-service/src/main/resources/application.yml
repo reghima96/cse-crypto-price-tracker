@@ -2,9 +2,9 @@ spring:
   application:
     name: user-service
   config:
-    import: optional:configserver:http://35.198.176.191:8888
+    import: optional:configserver:http://34.40.11.147:8888
   profiles:
-    active: dev
+    active: prod
 management:
   endpoints:
     web:

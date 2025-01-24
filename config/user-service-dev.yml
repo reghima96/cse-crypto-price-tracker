@@ -2,9 +2,9 @@ spring:
   application:
     name: user-service
   datasource:
-    url: jdbc:postgresql://localhost:5433/postgres
-    username: postgres
-    password: dev_user
+    url: jdbc:postgresql://localhost:5432/dev_db
+    username: dev_user
+    password: dev_pass
     driver-class-name: org.postgresql.Driver
   mvc:
     hiddenmethod:
