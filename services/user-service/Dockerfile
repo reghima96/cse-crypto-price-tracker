@@ -7,4 +7,4 @@ RUN mvn clean -DskipTests package
 FROM openjdk:17-jdk-slim
 ARG JAR_FILE=target/*.jar
 COPY --from=build /app/${JAR_FILE} app.jar
-ENTRYPOINT ["java", "-jar","-SPRING_PROFILES_ACTICE=prod", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app.jar"]
