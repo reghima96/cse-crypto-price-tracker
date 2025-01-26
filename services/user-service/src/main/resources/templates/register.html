@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Register</title>
     <style>
         body {
             font-family: sans-serif;
-            background-color: #121212; /* Dark background */
-            color: #e0e0e0; /* Light text */
+            background-color: #121212;
+            color: #e0e0e0;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 80vh;
+            min-height: 100vh;
             margin: 0;
         }
 
-        .login-container {
-            background-color: #1e1e1e; /* Darker container background */
+        .register-container {
+            background-color: #1e1e1e;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* More pronounced shadow */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             width: 350px;
         }
 
-        .login-container h2 {
+        .register-container h2 {
             text-align: center;
             margin-bottom: 20px;
-            color: #bb86fc; /* Purple accent color */
+            color: #bb86fc;
         }
 
         .form-group {
@@ -37,27 +37,30 @@
         label {
             display: block;
             margin-bottom: 5px;
-            color: #bdbdbd; /* Slightly darker label color */
+            color: #bdbdbd;
         }
 
         input[type="text"],
-        input[type="password"] {
+        input[type="password"],
+        input[type="email"] { /* Added email input style */
             width: 100%;
             padding: 10px;
-            border: 1px solid #333; /* Darker border */
+            border: 1px solid #333;
             border-radius: 4px;
             box-sizing: border-box;
-            background-color: #303030; /* Darker input background */
+            background-color: #303030;
             color: #e0e0e0;
         }
+
         input[type="text"]:focus,
-        input[type="password"]:focus{
+        input[type="password"]:focus,
+        input[type="email"]:focus {
             outline: 1px solid #bb86fc;
         }
 
         button {
             width: 100%;
-            background-color: #bb86fc; /* Purple button */
+            background-color: #bb86fc;
             color: white;
             padding: 10px;
             border: none;
@@ -67,37 +70,55 @@
         }
 
         button:hover {
-            background-color: #9c27b0; /* Darker purple on hover */
+            background-color: #9c27b0;
         }
 
         .error-message {
-            color: #f44336; /* Red error message */
+            color: #f44336;
             margin-top: 10px;
             text-align: center;
+        }
+        .link-to-login{
+            text-align: center;
+            margin-top: 10px;
+        }
+        .link-to-login a{
+            color:#bb86fc;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
 
-<div class="login-container">
-    <h2>Login</h2>
+<div class="register-container">
+    <h2>Register</h2>
+
     <div th:if="${param.error}" class="error-message">
-        Invalid username or password.
+        Registration error. Please try again.
     </div>
-        <div th:if="${param.logout}" class="error-message">
-        You have been logged out.
-    </div>
-    <form th:action="@{/login}" method="post">
+
+    <form th:action="@{/register}" method="post">
         <div class="form-group">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required="required">
         </div>
         <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required="required">
+        </div>
+        <div class="form-group">
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required="required">
         </div>
-        <button type="submit">Log In</button>
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required="required">
+        </div>
+        <button type="submit">Register</button>
     </form>
+        <div class="link-to-login">
+            <a th:href="@{/login}">Already have an account? Login</a>
+        </div>
 </div>
 
 </body>
