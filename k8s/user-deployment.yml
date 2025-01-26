@@ -32,17 +32,17 @@ spec:
         - name: DB_USER
           valueFrom:
             secretKeyRef:
-              name: gke-cloud-sql-secrets
+              name: cse-cloud-sql-secrets
               key: username
         - name: DB_PASS
           valueFrom:
             secretKeyRef:
-              name: gke-cloud-sql-secrets
+              name: cse-cloud-sql-secrets
               key: password
         - name: DB_NAME
           valueFrom:
             secretKeyRef:
-              name: gke-cloud-sql-secrets
+              name: cse-cloud-sql-secrets
               key: database
         - name: SPRING_PROFILES_ACTIVE
           value: prod

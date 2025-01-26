@@ -30,12 +30,20 @@ public class WebSecurityConfig {
 				.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
 						.requestMatchers("/swagger-ui/*")
 						.permitAll()
-						.requestMatchers("/actuator/health")
+						.requestMatchers("/register", "/css/**", "/js/**")
+						.permitAll() // Allow registration and static resources
+						.requestMatchers("/admin/**").hasRole("ADMIN")
+						.requestMatchers("/actuator/**")
 						.permitAll()
 						.anyRequest()
 						.authenticated())
 				.httpBasic(withDefaults())
-				.formLogin(withDefaults());
+				.formLogin(form -> form
+						.loginPage("/login")
+						.defaultSuccessUrl("/dashboard", true)
+						.permitAll())
+				.logout(logout -> logout
+						.permitAll());
 
 		return http.build();
 	}
