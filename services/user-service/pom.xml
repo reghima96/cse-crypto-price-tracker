@@ -32,7 +32,7 @@
 	</properties>
 
 
-<dependencies>
+	<dependencies>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -43,14 +43,17 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 		<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-thymeleaf</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-web</artifactId>
-</dependency>
-
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
@@ -60,8 +63,8 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
-		
-				<!-- swagger-->
+
+		<!-- swagger-->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -75,20 +78,20 @@
 			<optional>true</optional>
 		</dependency>
 
-		    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.cloud.sql</groupId>
-      <artifactId>postgres-socket-factory</artifactId>
-      <version>1.23.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP</artifactId>
-    </dependency>
-		
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.cloud.sql</groupId>
+			<artifactId>postgres-socket-factory</artifactId>
+			<version>1.23.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -104,7 +107,7 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -115,19 +118,19 @@
 
 	<build>
 		<plugins>
-<plugin>
-  <groupId>com.github.spotbugs</groupId>
-  <artifactId>spotbugs-maven-plugin</artifactId>
-  <version>4.9.0.0</version>
-  <dependencies>
-    <!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
-    <dependency>
-      <groupId>com.github.spotbugs</groupId>
-      <artifactId>spotbugs</artifactId>
-      <version>4.9.0</version>
-    </dependency>
-  </dependencies>
-</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.9.0.0</version>
+				<dependencies>
+					<!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
+					<dependency>
+						<groupId>com.github.spotbugs</groupId>
+						<artifactId>spotbugs</artifactId>
+						<version>4.9.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
