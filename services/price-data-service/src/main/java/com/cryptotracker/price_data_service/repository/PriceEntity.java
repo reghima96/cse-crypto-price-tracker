@@ -31,7 +31,7 @@ public class PriceEntity {
     public PriceEntity() {
     }
 
-    public PriceEntity(String symbol, BigDecimal price, LocalDateTime timestamp) {
+    public PriceEntity(UUID id, String symbol, BigDecimal price, LocalDateTime timestamp) {
         this.symbol = symbol;
         this.price = price;
         this.timestamp = timestamp;

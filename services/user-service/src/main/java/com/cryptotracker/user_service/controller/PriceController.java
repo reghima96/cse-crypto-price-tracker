@@ -27,51 +27,43 @@ public class PriceController {
             @RequestParam(value = "endDate", required = false) LocalDateTime endDate) {
 
         List<Price> prices;
-        if (symbol != null && startDate != null && endDate != null) {
-            prices = priceService.getPricesBySymbolAndDateRange(symbol, startDate, endDate);
-        } else if (symbol != null) {
-            prices = priceService.getPricesBySymbol(symbol);
-        } else {
-            prices = priceService.getAllPrices();
-        }
+        prices = priceService.getPrices(symbol, startDate, endDate);
 
         return ResponseEntity.ok(prices);
     }
 }
 
-
-
 // @RestController
 // public class PriceController {
 
-//     private final PriceService priceService;
+// private final PriceService priceService;
 
-//     public PriceController(PriceService priceService) {
-//         this.priceService = priceService;
-//     }
+// public PriceController(PriceService priceService) {
+// this.priceService = priceService;
+// }
 
-//     @GetMapping("/api/prices")
-//     public ResponseEntity<List<Price>> getPrices(
-//             @RequestParam(value = "symbols", required = false) String symbols,
-//             @RequestParam(value = "period", required = false) String period) {
+// @GetMapping("/api/prices")
+// public ResponseEntity<List<Price>> getPrices(
+// @RequestParam(value = "symbols", required = false) String symbols,
+// @RequestParam(value = "period", required = false) String period) {
 
-//         List<Price> prices = new java.util.ArrayList<>();
-//         LocalDateTime now = LocalDateTime.now();
+// List<Price> prices = new java.util.ArrayList<>();
+// LocalDateTime now = LocalDateTime.now();
 
-//         if (symbols != null) {
-//             List<String> symbolList = Arrays.stream(symbols.split(",")).collect(Collectors.toList());
-//             for (String symbolItem : symbolList) {
-//                 if ("week".equalsIgnoreCase(period)) {
-//                     LocalDateTime startDate = now.minus(7, ChronoUnit.DAYS);
-//                     prices.addAll(priceService.getPricesForWeek(symbolItem, startDate, now));
-//                 } else {
-//                     prices.addAll(priceService.getPricesBySymbol(symbolItem));
-//                 }
-//             }
-//         } else {
-//             prices = priceService.getAllPrices();
-//         }
+// if (symbols != null) {
+// List<String> symbolList = Arrays.stream(symbols.split(",")).collect(Collectors.toList());
+// for (String symbolItem : symbolList) {
+// if ("week".equalsIgnoreCase(period)) {
+// LocalDateTime startDate = now.minus(7, ChronoUnit.DAYS);
+// prices.addAll(priceService.getPricesForWeek(symbolItem, startDate, now));
+// } else {
+// prices.addAll(priceService.getPricesBySymbol(symbolItem));
+// }
+// }
+// } else {
+// prices = priceService.getAllPrices();
+// }
 
-//         return ResponseEntity.ok(prices);
-//     }
+// return ResponseEntity.ok(prices);
+// }
 // }
