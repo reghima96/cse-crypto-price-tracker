@@ -1,6 +1,7 @@
 package com.cryptotracker.user_service.security;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -22,7 +23,10 @@ public class AuthenticatedUser extends UserEntity implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return AuthorityUtils.commaSeparatedStringToAuthorityList(String.join(",", getRoles()));
+		return AuthorityUtils.commaSeparatedStringToAuthorityList(
+				getRoles().stream()
+						.map(s -> "ROLE_" + s)
+						.collect(Collectors.joining(",")));
 	}
 
 	@Override

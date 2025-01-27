@@ -1,5 +1,7 @@
 package com.cryptotracker.user_service.controller;
- 
+
+import java.util.Collections;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +15,6 @@ import com.cryptotracker.user_service.dto.RegistrationRequest;
 import com.cryptotracker.user_service.service.UserService;
 
 import jakarta.validation.Valid;
-import java.util.Collections;
 
 @Controller
 public class RegistrationController {
@@ -28,7 +29,6 @@ public class RegistrationController {
     public String showLoginForm() {
         return "login";
     }
-
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: user-service
+    name: price-data-service
   config:
     import: optional:configserver:http://34.159.242.142:8888
   profiles:
