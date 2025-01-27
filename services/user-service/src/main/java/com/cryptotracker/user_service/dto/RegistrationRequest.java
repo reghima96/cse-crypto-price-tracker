@@ -1,4 +1,4 @@
-package com.cryptotracker.user_service.controller;
+package com.cryptotracker.user_service.dto;
 
 
 import jakarta.validation.constraints.Email;

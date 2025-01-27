@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.cryptotracker.user_service.dto.RegistrationRequest;
 import com.cryptotracker.user_service.service.UserService;
 
 import jakarta.validation.Valid;
