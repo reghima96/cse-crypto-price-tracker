@@ -2,6 +2,9 @@ package com.cryptotracker.price_data_service.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,16 +23,17 @@ public class DataIngestionController {
     }
 
     @GetMapping("/api/prices")
-    public ResponseEntity<List<PriceEntity>> getPrices(
-            @RequestParam(value = "symbols", required = false) String symbols) {
-
-        List<PriceEntity> prices;
+    public ResponseEntity<Page<PriceEntity>> getPrices(@RequestParam(value = "symbols", required = false) String symbols,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PriceEntity> prices;
 
         if (symbols != null) {
             List<String> symbolList = java.util.Arrays.stream(symbols.split(",")).toList();
-            prices = priceService.getPricesBySymbols(symbolList);
+            prices = priceService.getPricesBySymbols(symbolList, pageable);
         } else {
-            prices = priceService.getAllPrices();
+            prices = priceService.getAllPrices(pageable);
         }
 
         if (prices.isEmpty()) {
