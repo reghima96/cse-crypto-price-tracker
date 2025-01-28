@@ -1,3 +1,4 @@
+
 CREATE TABLE cryptocurrencies (
     id UUID PRIMARY KEY,
     symbol VARCHAR(255) UNIQUE NOT NULL,

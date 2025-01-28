@@ -18,6 +18,7 @@ spec:
       containers:
       - name: user-service
         image: europe-west3-docker.pkg.dev/crypto-price-tracker-447719/cpt-mservices-repo/user-service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:

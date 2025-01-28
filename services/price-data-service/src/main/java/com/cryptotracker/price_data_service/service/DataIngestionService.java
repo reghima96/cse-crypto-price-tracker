@@ -1,9 +1,11 @@
 package com.cryptotracker.price_data_service.service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -20,6 +22,8 @@ import com.cryptotracker.price_data_service.repository.Cryptocurrency;
 import com.cryptotracker.price_data_service.repository.CryptocurrencyRepository;
 import com.cryptotracker.price_data_service.repository.PriceEntity;
 
+import reactor.util.retry.Retry;
+
 @Service
 public class DataIngestionService {
 
@@ -33,12 +37,15 @@ public class DataIngestionService {
     private String baseUrl;
 
     public DataIngestionService(PriceService priceService, CryptocurrencyRepository cryptocurrencyRepository, WebClient.Builder webClientBuilder) {
+        if (baseUrl == null || baseUrl.isBlank()) {
+            throw new IllegalStateException("CoinGecko API base URL is not configured.");
+        }
         this.priceService = priceService;
         this.cryptocurrencyRepository = cryptocurrencyRepository;
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
     }
 
-    @Scheduled(fixedDelay = 300000) // Wait 5 minutes between runs
+    @Scheduled(fixedRate = 300000) // Run every 5 minutes
     public void fetchPriceData() {
         List<Cryptocurrency> cryptocurrencies = cryptocurrencyRepository.findAll();
 
@@ -47,13 +54,11 @@ public class DataIngestionService {
             return;
         }
 
-        // Build the CoinGecko API request with all cryptocurrency IDs
         String ids = cryptocurrencies.stream()
                 .map(Cryptocurrency::getCoinGeckoId)
                 .collect(Collectors.joining(","));
 
         try {
-            // Fetch prices in a batch
             Map<String, Map<String, BigDecimal>> response = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/simple/price")
@@ -61,11 +66,10 @@ public class DataIngestionService {
                             .queryParam("vs_currencies", "eur")
                             .build())
                     .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<Map<String, Map<String, BigDecimal>>>() {
-                    })
+                    .bodyToMono(new ParameterizedTypeReference<Map<String, Map<String, BigDecimal>>>() {})
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))) // Retry with backoff
                     .block();
 
-            // Save prices to the database
             if (response != null) {
                 savePrices(cryptocurrencies, response);
             } else {
@@ -85,14 +89,21 @@ public class DataIngestionService {
     private void savePrices(List<Cryptocurrency> cryptocurrencies, Map<String, Map<String, BigDecimal>> response) {
         for (Cryptocurrency crypto : cryptocurrencies) {
             String coinGeckoId = crypto.getCoinGeckoId();
-            if (response.containsKey(coinGeckoId) && response.get(coinGeckoId).containsKey("eur")) {
-                BigDecimal priceValue = response.get(coinGeckoId).get("eur");
-                PriceEntity priceEntity = new PriceEntity(
-                        crypto.getSymbol(),
-                        priceValue,
-                        LocalDateTime.now());
-                priceService.save(priceEntity);
-                logger.info("Saved price for {}: {}", crypto.getSymbol(), priceValue);
+            BigDecimal priceValue = Optional.ofNullable(response.get(coinGeckoId))
+                    .map(currencyMap -> currencyMap.get("eur"))
+                    .orElse(null);
+
+            if (priceValue != null) {
+                try {
+                    PriceEntity priceEntity = new PriceEntity(
+                            crypto.getSymbol(),
+                            priceValue,
+                            LocalDateTime.now());
+                    priceService.save(priceEntity);
+                    logger.info("Saved price for {}: {}", crypto.getSymbol(), priceValue);
+                } catch (Exception e) {
+                    logger.error("Failed to save price for {}: {}", crypto.getSymbol(), e.getMessage());
+                }
             } else {
                 logger.warn("No price data available for cryptocurrency: {}", crypto.getSymbol());
             }

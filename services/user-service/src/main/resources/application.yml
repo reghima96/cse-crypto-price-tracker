@@ -3,3 +3,6 @@ spring:
     name: user-service
   config:
     import: optional:configserver:http://34.159.242.142:8888
+  profiles:
+    active:
+    - dev

@@ -18,6 +18,7 @@ spec:
       containers:
       - name: price-data-service
         image: europe-west3-docker.pkg.dev/crypto-price-tracker-447719/cpt-mservices-repo/price-data-service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8081
         env:
