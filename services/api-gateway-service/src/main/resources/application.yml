@@ -3,8 +3,6 @@ spring:
     name: api-gateway-service
   config:
     import: optional:configserver:http://config-server:8888
-  profiles:
-    active: prod
 management:
   endpoints:
     web:
