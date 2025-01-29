@@ -95,7 +95,7 @@ jobs:
 
       - name: Deploy to GKE
         run: |
-          kubectl apply -f k8s/
+          kubectl apply -f k8s/${{ matrix.service }}
           kubectl rollout status deployment/${{ matrix.service }}
 
       - name: Tag and Push Git Tag # Consider if you really need to tag every build.

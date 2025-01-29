@@ -1,5 +1,6 @@
 package com.cryptotracker.price_data_service.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -27,6 +28,15 @@ public class PriceService {
   public Page<PriceEntity> getPricesBySymbols(List<String> symbols, Pageable pageable) {
     return priceRepository.findBySymbolIn(symbols, pageable);
   }
+
+  public Page<PriceEntity> getHistoricalPrices(List<String> symbols, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+    return priceRepository.findPricesBySymbolsAndDateRange(symbols, startDate, endDate ,pageable);
+  }
+
+  public List<PriceEntity> getLatestPrices() {
+    return priceRepository.findLatestPrices();
+  }
+
 
   @Transactional
   public void save(PriceEntity price) {
