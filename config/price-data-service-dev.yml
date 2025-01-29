@@ -10,12 +10,14 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
-
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 logging:
   level:
     root: debug
     org:
       springframework: info
+coingecko:
+  api:
+    base-url: https://api.coingecko.com/api/v3

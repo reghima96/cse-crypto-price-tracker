@@ -13,10 +13,7 @@ spring:
       connection-timeout: 20000
   jpa:
     hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: none
 logging:
   level:
     root: info

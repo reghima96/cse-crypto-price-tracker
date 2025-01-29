@@ -1,21 +1,7 @@
 spring:
   application:
     name: price-data-service
-  sql:
-    init:
-      mode: always
-  datasource:
-    url: jdbc:postgresql://localhost:5432/dev_db
-    username: dev_user
-    password: dev_pass
-    driver-class-name: org.postgresql.Driver
-  mvc:
-    hiddenmethod:
-      filter:
-        enabled: true
-  jpa:
-    hibernate:
-      ddl-auto: validate
-coingecko:
-  api:
-    base-url: https://api.coingecko.com/api/v3
+  config:
+    import: optional:configserver:http://34.159.242.142:8888
+  profiles:
+    active: dev

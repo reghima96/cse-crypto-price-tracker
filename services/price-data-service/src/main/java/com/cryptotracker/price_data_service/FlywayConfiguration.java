@@ -18,8 +18,6 @@ public class FlywayConfiguration {
         Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
                 .locations("classpath:/db/migration")
-                .baselineOnMigrate(true)
-                .baselineDescription("create tables")
                 .load();
         flyway.migrate(); 
         return flyway;
