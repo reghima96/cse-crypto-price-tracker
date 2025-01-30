@@ -4,24 +4,28 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface PriceEntityRepository extends JpaRepository<PriceEntity, UUID> {
-    Page<PriceEntity> findBySymbolIn(List<String> symbols, Pageable pageable);
 
-    @Query("SELECT p FROM PriceEntity p WHERE p.symbol IN :symbols AND p.timestamp BETWEEN :startDate AND :endDate ORDER BY p.timestamp DESC")
-    Page<PriceEntity> findPricesBySymbolsAndDateRange(
-            @Param("symbols") List<String> symbols,
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,
-            Pageable pageable);
+        // For dashboard charts
+        @Query("SELECT p FROM PriceEntity p " +
+                        "WHERE p.symbol = :symbol " +
+                        "AND p.timestamp >= :since " +
+                        "ORDER BY p.timestamp ASC")
+        List<PriceEntity> findRecentPricesBySymbolAndTimeRange(
+                        @Param("symbol") String symbol,
+                        @Param("since") LocalDateTime since);
 
-    // Find latest price per symbol
-    @Query("SELECT p FROM PriceEntity p WHERE p.timestamp = (SELECT MAX(p2.timestamp) FROM PriceEntity p2 WHERE p2.symbol = p.symbol)")
-    List<PriceEntity> findLatestPrices();
+        // For export functionality
+        List<PriceEntity> findByTimestampGreaterThanEqual(LocalDateTime since);
+
+        // For latest prices
+        @Query("SELECT p FROM PriceEntity p " +
+                        "WHERE p.timestamp = (SELECT MAX(p2.timestamp) FROM PriceEntity p2 WHERE p2.symbol = p.symbol)")
+        List<PriceEntity> findLatestPrices();
 }
-

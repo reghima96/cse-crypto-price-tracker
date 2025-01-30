@@ -1,24 +1,29 @@
 package com.cryptotracker.price_data_service.controller;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.stereotype.Controller;
 
-import com.cryptotracker.price_data_service.dto.PriceDto;
+import com.cryptotracker.price_data_service.repository.Cryptocurrency;
 import com.cryptotracker.price_data_service.repository.PriceEntity;
 import com.cryptotracker.price_data_service.service.PriceService;
+import com.cryptotracker.price_data_service.dto.CryptocurrencyDto;
 
-@RestController
+@Controller
 @RequestMapping("/api/prices")
 public class PriceController {
 
@@ -28,46 +33,48 @@ public class PriceController {
         this.priceService = priceService;
     }
 
-    @GetMapping
-    public ResponseEntity<Page<PriceDto>> getPrices(
-            @RequestParam Optional<String> symbols,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<PriceEntity> prices = symbols.isPresent()
-                ? priceService.getPricesBySymbols(parseSymbols(symbols), pageable)
-                : priceService.getAllPrices(pageable);
-
-        return prices.isEmpty()
-                ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(prices.map(PriceDto::fromEntity));
+    @GetMapping("/{symbol}/recent")
+    @ResponseBody
+    public ResponseEntity<List<PriceEntity>> getRecentPrices(
+            @PathVariable String symbol,
+            @RequestParam(defaultValue = "24h") String timeRange) {
+        List<PriceEntity> prices = priceService.getRecentPricesBySymbol(symbol, timeRange);
+        return ResponseEntity.ok(prices);
     }
 
-    // Fetch the latest price per symbol
-    @GetMapping("/latest")
-    public ResponseEntity<List<PriceEntity>> getLatestPrices() {
-        List<PriceEntity> latestPrices = priceService.getLatestPrices();
-        return latestPrices.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(latestPrices);
+    @GetMapping("/dashboard")
+    public String getDashboard(Model model) {
+        List<Cryptocurrency> cryptocurrencies = priceService.getAllCryptocurrencies();
+        model.addAttribute("cryptocurrencies", cryptocurrencies);
+        return "dashboard";
     }
 
-    @GetMapping("/history")
-    public ResponseEntity<Page<PriceEntity>> getHistoricalPrices(
-            @RequestParam List<String> symbols,
-            @RequestParam String startDate,
-            @RequestParam String endDate,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        LocalDateTime start = LocalDateTime.parse(startDate);
-        LocalDateTime end = LocalDateTime.parse(endDate);
-        Pageable pageable = PageRequest.of(page, size);
-
-        Page<PriceEntity> historicalPrices = priceService.getHistoricalPrices(symbols, start, end, pageable);
-        return ResponseEntity.ok(historicalPrices);
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportData(
+            @RequestParam String timeRange) throws IOException {
+        byte[] excelContent = priceService.generateExcelReport(timeRange);
+        
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String filename = "crypto_prices_" + timestamp + ".xlsx";
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", filename);
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(excelContent);
     }
 
-    private List<String> parseSymbols(Optional<String> symbols) {
-        return symbols.map(s -> Arrays.asList(s.split(","))).orElse(List.of());
+    @PostMapping("/admin/cryptocurrency")
+    @ResponseBody
+    public ResponseEntity<?> addCryptocurrency(@RequestBody CryptocurrencyDto dto) {
+        try {
+            Cryptocurrency crypto = priceService.addCryptocurrency(dto);
+            return ResponseEntity.ok(crypto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
+
 }

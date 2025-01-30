@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,8 +32,7 @@ public class DataIngestionService {
     private final CryptocurrencyRepository cryptocurrencyRepository;
     private final WebClient webClient;
 
-    @Value("${coingecko.api.base-url}")
-    private String baseUrl;
+    private String baseUrl = "https://api.coingecko.com/api/v3";
 
     public DataIngestionService(PriceService priceService, CryptocurrencyRepository cryptocurrencyRepository, WebClient.Builder webClientBuilder) {
         if (baseUrl == null || baseUrl.isBlank()) {
@@ -66,7 +64,8 @@ public class DataIngestionService {
                             .queryParam("vs_currencies", "eur")
                             .build())
                     .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<Map<String, Map<String, BigDecimal>>>() {})
+                    .bodyToMono(new ParameterizedTypeReference<Map<String, Map<String, BigDecimal>>>() {
+                    })
                     .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))) // Retry with backoff
                     .block();
 
