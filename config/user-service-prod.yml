@@ -5,7 +5,7 @@ spring:
     url: jdbc:postgresql:///${DB_NAME}?cloudSqlInstance=${INSTANCE_CONNECTION_NAME}&socketFactory=com.google.cloud.sql.postgres.SocketFactory
     username: ${DB_USER}
     password: ${DB_PASS}
-    hikari: 
+    hikari:
       maximum-pool-size: 10
       minimum-idle: 2
       idle-timeout: 30000
@@ -23,3 +23,7 @@ management:
     web:
       exposure:
         include: env
+
+jwt:
+  secret: ${JWT_SECRET:c2VjcmV0LWtleS0yNTYtYml0cy1sb25nLWZvci1qd3QtdG9rZW4tc2lnbmluZy1pbi1jcnlwdG8tdHJhY2tlcg==}
+  expiration: ${JWT_EXPIRATION:86400000}

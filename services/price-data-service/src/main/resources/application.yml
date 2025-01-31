@@ -5,10 +5,12 @@ spring:
     import: optional:configserver:http://35.242.213.108:8888
   profiles:
     active: dev
-  datasource:
-    url: jdbc:postgresql://localhost:5433/dev_price_db
-    username: dev_user
-    password: dev_pass
+  jpa:
+    hibernate:
+      ddl-auto: validate
+server:
+  port: 8081
+  address: 0.0.0.0
 coingecko:
   api:
     base-url: https://api.coingecko.com/api/v3

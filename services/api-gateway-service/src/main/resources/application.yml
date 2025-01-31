@@ -3,8 +3,12 @@ spring:
     name: api-gateway-service
   config:
     import: optional:configserver:http://config-server:8888
+  
+server:
+  port: 8080
+
 management:
   endpoints:
     web:
       exposure:
-        include: env
+        include: health,info,metrics

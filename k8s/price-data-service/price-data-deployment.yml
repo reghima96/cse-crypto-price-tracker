@@ -23,11 +23,9 @@ spec:
         - containerPort: 8081
         env:
         - name: PORT
-          value: "8080"
+          value: "8081"
         - name: INSTANCE_CONNECTION_NAME
           value: crypto-price-tracker-447719:europe-west3:postgress96
-        - name: DB_HOST
-          value: "127.0.0.1"
         - name: DB_PORT
           value: "5432"  
         - name: DB_USER
