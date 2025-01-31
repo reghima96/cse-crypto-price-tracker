@@ -2,9 +2,9 @@ spring:
   application:
     name: price-data-service
   datasource:
-    url: jdbc:postgresql://localhost:5433/dev_price_db
-    username: dev_user
-    password: dev_pass
+    url: jdbc:postgresql://localhost:5435/dev_db2
+    username: dev_user2
+    password: dev_pass2
     driver-class-name: org.postgresql.Driver
   mvc:
     hiddenmethod:
