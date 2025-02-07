@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+    app: api-gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: europe-west3-docker.pkg.dev/crypto-price-tracker-447719/cpt-mservices-repo/api-gateway:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: CONFIG_SERVER_URL
+          value: "http://config-server:8888" 
+        - name: USER_SERVICE_URL
+          value: "http://user-service:8082"  
+        - name: PRICE_SERVICE_URL
+          value: "http://price-service:8081"  
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"

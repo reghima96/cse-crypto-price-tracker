@@ -21,7 +21,7 @@ spring:
 
 api:
   gateway:
-    url: http://localhost:8080
+    url: http://api-gateway-service:8080
 
 server:
   port: 8082

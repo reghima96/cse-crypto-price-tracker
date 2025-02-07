@@ -17,15 +17,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.cryptotracker.user_service.dto.ErrorResponse;
-import com.cryptotracker.user_service.dto.LoginRequest;
 import com.cryptotracker.user_service.dto.RegistrationRequest;
 import com.cryptotracker.user_service.security.AppUserDetailsService;
 import com.cryptotracker.user_service.security.JwtUtil;
@@ -79,7 +76,7 @@ public class AuthController {
             log.debug("Token generated: {}", token);
 
             // Create HTTP-only cookie - removed "Bearer " prefix
-            ResponseCookie cookie = ResponseCookie.from("token", token)  // Just the token, no "Bearer " prefix
+            ResponseCookie cookie = ResponseCookie.from("token", token) // Just the token, no "Bearer " prefix
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
@@ -90,11 +87,10 @@ public class AuthController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .body(Map.of(
-                        "redirectUrl", apiGatewayUrl + "/api/prices/dashboard"
-                    ));
+                            "redirectUrl", apiGatewayUrl + "/api/prices/dashboard"));
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "Invalid credentials"));
+                    .body(Map.of("error", "Invalid credentials"));
         }
     }
 
@@ -107,5 +103,21 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // Create cookie with same name but 0 max-age to delete it
+        ResponseCookie cookie = ResponseCookie.from("token", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(Map.of("message", "Logged out successfully"));
     }
 }

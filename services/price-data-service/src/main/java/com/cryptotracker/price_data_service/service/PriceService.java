@@ -82,9 +82,9 @@ public class PriceService {
   private LocalDateTime calculateTimeRange(String timeRange) {
     LocalDateTime now = LocalDateTime.now();
     return switch (timeRange) {
-    case "1h" -> now.minusHours(1);
-    case "3d" -> now.minusDays(3);
-    default -> now.minusHours(24); // 24h is default
+      case "1h" -> now.minusHours(1);
+      case "3d" -> now.minusDays(3);
+      default -> now.minusHours(24); // 24h is default
     };
   }
 

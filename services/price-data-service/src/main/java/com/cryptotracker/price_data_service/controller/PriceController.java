@@ -47,18 +47,18 @@ public class PriceController {
             @PathVariable String symbol,
             @RequestParam(defaultValue = "24h") String timeRange,
             HttpServletRequest request) {
-        
+
         logger.debug("Received request for symbol: {} with timeRange: {}", symbol, timeRange);
         logger.debug("Authorization header: {}", request.getHeader("Authorization"));
         logger.debug("X-User-Email header: {}", request.getHeader("X-User-Email"));
         logger.debug("X-User-Roles header: {}", request.getHeader("X-User-Roles"));
-        
+
         // Ensure user is authenticated
         String userEmail = request.getHeader("X-User-Email");
         if (userEmail == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        
+
         List<PriceEntity> prices = priceService.getRecentPricesBySymbol(symbol, timeRange);
         logger.debug("Returning {} price points for {}", prices.size(), symbol);
         return ResponseEntity.ok(prices);
@@ -66,11 +66,7 @@ public class PriceController {
 
     @GetMapping("/dashboard")
     public String getDashboard(Model model, HttpServletRequest request) {
-        logger.debug("Dashboard request received");
-        logger.debug("Authorization header: {}", request.getHeader("Authorization"));
-        logger.debug("X-User-Email header: {}", request.getHeader("X-User-Email"));
-        logger.debug("X-User-Roles header: {}", request.getHeader("X-User-Roles"));
-        
+
         String userEmail = request.getHeader("X-User-Email");
         String userRoles = request.getHeader("X-User-Roles");
 
@@ -85,7 +81,7 @@ public class PriceController {
         model.addAttribute("userEmail", userEmail);
         model.addAttribute("roles", userRoles);
 
-        return "dashboard"; 
+        return "dashboard";
     }
 
     @GetMapping("/export")
@@ -97,7 +93,8 @@ public class PriceController {
         String filename = "crypto_prices_" + timestamp + ".xlsx";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentType(
+                MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         headers.setContentDispositionFormData("attachment", filename);
 
         return ResponseEntity.ok()
@@ -108,10 +105,10 @@ public class PriceController {
     @PostMapping("/admin/cryptocurrency")
     @ResponseBody
     public ResponseEntity<?> addCryptocurrency(
-            @RequestHeader("X-User-Roles") String roles,
+            @RequestHeader(value = "X-User-Roles", required = false) String roles,
             @RequestBody CryptocurrencyDto dto) {
 
-        if (!roles.contains("ADMIN")) {
+        if (roles == null || !roles.contains("ADMIN")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Admin access required");
         }

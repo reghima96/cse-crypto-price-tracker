@@ -26,13 +26,16 @@ public class CustomAuthFilter extends OncePerRequestFilter {
         String email = request.getHeader("X-User-Email");
         String roles = request.getHeader("X-User-Roles");
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (email != null && roles != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             List<SimpleGrantedAuthority> authorities = Arrays.stream(roles.split(","))
-                    .map(SimpleGrantedAuthority::new)
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.trim()))
                     .collect(Collectors.toList());
 
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, null,
-                    authorities);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    email, 
+                    null,
+                    authorities
+            );
             SecurityContextHolder.getContext().setAuthentication(authToken);
         }
 

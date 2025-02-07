@@ -21,7 +21,7 @@ public class AdminController {
 
   private final UserService userService;
 
-  @PostMapping("/users/{email}/roles/admin")
+  @PostMapping("/users/{email}")
   public ResponseEntity<?> grantAdminRole(@PathVariable String email) {
     log.debug("Granting admin role to user: {}", email);
     userService.addRole(email, "ADMIN");

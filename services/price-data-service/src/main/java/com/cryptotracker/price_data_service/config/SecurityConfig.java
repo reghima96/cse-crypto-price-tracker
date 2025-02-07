@@ -45,11 +45,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/prices/admin/cryptocurrency").hasRole("ADMIN")
+                        .requestMatchers("/api/prices/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/prices/**").authenticated()
-                        .requestMatchers("/dashboard", "/css/**", "/js/**", "/images/**", "/error").permitAll()
+                        .requestMatchers( "/css/**", "/js/**", "/images/**", "/error").permitAll()
                         .anyRequest().permitAll())
-                        .addFilterBefore(new CustomAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new CustomAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -59,7 +59,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080"));
+        configuration.setAllowedOrigins(Arrays.asList("http://api-gateway-service:8080"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
