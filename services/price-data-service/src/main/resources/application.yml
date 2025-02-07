@@ -14,3 +14,7 @@ server:
 coingecko:
   api:
     base-url: https://api.coingecko.com/api/v3
+
+jwt:
+  secret: ${JWT_SECRET:c2VjcmV0LWtleS0yNTYtYml0cy1sb25nLWZvci1qd3QtdG9rZW4tc2lnbmluZy1pbi1jcnlwdG8tdHJhY2tlcg==}
+  expiration: ${JWT_EXPIRATION:86400000}

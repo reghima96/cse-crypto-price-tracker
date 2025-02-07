@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,9 +27,13 @@ import com.cryptotracker.price_data_service.repository.Cryptocurrency;
 import com.cryptotracker.price_data_service.repository.PriceEntity;
 import com.cryptotracker.price_data_service.service.PriceService;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Controller
 @RequestMapping("/api/prices")
 public class PriceController {
+
+    private static final Logger logger = LoggerFactory.getLogger(PriceController.class);
 
     private final PriceService priceService;
 
@@ -39,23 +45,47 @@ public class PriceController {
     @ResponseBody
     public ResponseEntity<List<PriceEntity>> getRecentPrices(
             @PathVariable String symbol,
-            @RequestParam(defaultValue = "24h") String timeRange) {
+            @RequestParam(defaultValue = "24h") String timeRange,
+            HttpServletRequest request) {
+        
+        logger.debug("Received request for symbol: {} with timeRange: {}", symbol, timeRange);
+        logger.debug("Authorization header: {}", request.getHeader("Authorization"));
+        logger.debug("X-User-Email header: {}", request.getHeader("X-User-Email"));
+        logger.debug("X-User-Roles header: {}", request.getHeader("X-User-Roles"));
+        
+        // Ensure user is authenticated
+        String userEmail = request.getHeader("X-User-Email");
+        if (userEmail == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        
         List<PriceEntity> prices = priceService.getRecentPricesBySymbol(symbol, timeRange);
+        logger.debug("Returning {} price points for {}", prices.size(), symbol);
         return ResponseEntity.ok(prices);
     }
 
     @GetMapping("/dashboard")
-    public String getDashboard(
-            @RequestHeader(value = "X-User-Email", required = false) String userEmail,
-            Model model) {
+    public String getDashboard(Model model, HttpServletRequest request) {
+        logger.debug("Dashboard request received");
+        logger.debug("Authorization header: {}", request.getHeader("Authorization"));
+        logger.debug("X-User-Email header: {}", request.getHeader("X-User-Email"));
+        logger.debug("X-User-Roles header: {}", request.getHeader("X-User-Roles"));
+        
+        String userEmail = request.getHeader("X-User-Email");
+        String userRoles = request.getHeader("X-User-Roles");
+
         if (userEmail == null) {
+            logger.warn("Unauthorized access attempt to dashboard");
             return "redirect:/auth/login";
         }
-        
+
         List<Cryptocurrency> cryptocurrencies = priceService.getAllCryptocurrencies();
+
         model.addAttribute("cryptocurrencies", cryptocurrencies);
         model.addAttribute("userEmail", userEmail);
-        return "dashboard";
+        model.addAttribute("roles", userRoles);
+
+        return "dashboard"; 
     }
 
     @GetMapping("/export")

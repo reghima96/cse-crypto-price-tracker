@@ -19,6 +19,10 @@ spring:
       hibernate:
         format_sql: true
 
+api:
+  gateway:
+    url: http://localhost:8080
+
 server:
   port: 8082
   address: 0.0.0.0

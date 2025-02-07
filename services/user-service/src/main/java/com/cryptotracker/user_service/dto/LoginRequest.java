@@ -1,12 +1,13 @@
 package com.cryptotracker.user_service.dto;
 
 import lombok.Data;
-import jakarta.validation.constraints.NotBlank;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginRequest {
-    @NotBlank
     private String email;
-    @NotBlank
     private String password;
 }

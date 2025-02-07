@@ -1,11 +1,38 @@
 spring:
   application:
     name: api-gateway-service
+  security:
+    user:
+      name: disabled
+      password: disabled
   config:
     import: optional:configserver:http://config-server:8888
-  
+  cloud:
+    gateway:
+      default-filters:
+        - JwtAuthFilter
+      routes:
+        - id: user-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/auth/**
+        
+
+        - id: price-data-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/prices/**
+
+logging:
+  level:
+    com.cryptotracker.api_gateway_service.filter: DEBUG
+
 server:
   port: 8080
+
+jwt:
+  secret: ${JWT_SECRET:c2VjcmV0LWtleS0yNTYtYml0cy1sb25nLWZvci1qd3QtdG9rZW4tc2lnbmluZy1pbi1jcnlwdG8tdHJhY2tlcg==}
+  expiration: ${JWT_EXPIRATION:86400000}
 
 management:
   endpoints:

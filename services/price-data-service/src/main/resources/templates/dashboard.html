@@ -333,22 +333,37 @@
             }
 
             const timeRange = document.getElementById('timeRange').value;
+            const url = `/api/prices/${symbol}/recent?timeRange=${timeRange}`;
+            
+            // Debug logs
+            console.log('Fetching data for symbol:', symbol);
+            console.log('URL:', url);
+            console.log('Token:', localStorage.getItem('token'));
 
-            fetch(`/api/prices/${symbol}/recent?timeRange=${timeRange}`)
-                .then(response => response.json())
+            fetch(url)
+                .then(response => {
+                    console.log(`Response status for ${symbol}:`, response.status);
+                    console.log(`Response headers for ${symbol}:`, response.headers);
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch data for ${symbol}: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log(`Data received for ${symbol}:`, data);
+                    if (!data || data.length === 0) {
+                        console.warn(`No data received for ${symbol}`);
+                        return;
+                    }
+                    
                     const labels = data.map(item => {
                         const date = new Date(item.timestamp);
-                        // Format based on time range
-                        if (timeRange === '1h') {
-                            return date.toLocaleTimeString();
-                        } else {
-                            return date.toLocaleString();
-                        }
+                        return timeRange === '1h' ? date.toLocaleTimeString() : date.toLocaleString();
                     });
                     const prices = data.map(item => item.price);
                     
-                    charts[symbol] = new Chart(ctx, {
+                    // Create chart configuration
+                    const chartConfig = {
                         type: 'line',
                         data: {
                             labels: labels,
@@ -396,9 +411,14 @@
                                 }
                             }
                         }
-                    });
+                    };
 
+                    console.log(`Creating chart for ${symbol} with config:`, chartConfig);
+                    charts[symbol] = new Chart(ctx, chartConfig);
                     updatePriceInfo(prices, symbol);
+                })
+                .catch(error => {
+                    console.error(`Error fetching data for ${symbol}:`, error);
                 });
         }
 
@@ -418,12 +438,6 @@
                     `price-change ${priceChange >= 0 ? 'positive-change' : 'negative-change'}`;
             }
         }
-
-        // Initial load
-        initCharts();
-
-        // Refresh every 5 minutes
-        setInterval(initCharts, 300000);
 
         function applyFilters() {
             const selectedCryptos = Array.from(document.querySelectorAll('input[name="selectedCryptos"]:checked'))
@@ -516,21 +530,32 @@
     </script>
 
     <script>
-        // Check for token on page load
         document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/auth/login';
-                return;
-            }
-
-            // Add Authorization header to all future requests
+            // Override fetch to always include credentials
             const originalFetch = window.fetch;
             window.fetch = function(url, options = {}) {
-                options.headers = options.headers || {};
-                options.headers['Authorization'] = `Bearer ${token}`;
-                return originalFetch(url, options);
+                options = {
+                    ...options,
+                    credentials: 'include',  // Important for cookies
+                    headers: {
+                        ...options.headers,
+                        'Accept': 'application/json'
+                    }
+                };
+                return originalFetch(url, options)
+                    .then(response => {
+                        if (response.status === 401) {
+                            // Redirect to login if unauthorized
+                            window.location.href = '/auth/login';
+                            return Promise.reject('Unauthorized');
+                        }
+                        return response;
+                    });
             };
+
+            console.log('Initializing charts...');
+            initCharts();
+            setInterval(initCharts, 300000);
         });
     </script>
 
