@@ -2,7 +2,7 @@ spring:
   application:
     name: price-data-service
   datasource:
-    url: jdbc:postgresql://postgres2:5435/dev_db2
+    url: jdbc:postgresql://localhost:5435/dev_db2
     username: dev_user2
     password: dev_pass2
     driver-class-name: org.postgresql.Driver

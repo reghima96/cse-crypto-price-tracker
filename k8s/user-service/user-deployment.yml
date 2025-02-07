@@ -22,16 +22,6 @@ spec:
         ports:
         - containerPort: 8082
         env:
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: jwt-secret
-              key: JWT_SECRET
-        - name: JWT_EXPIRATION
-          valueFrom:
-            secretKeyRef:
-              name: jwt-secret
-              key: JWT_EXPIRATION 
         - name: PORT
           value: "8082"
         - name: INSTANCE_CONNECTION_NAME
